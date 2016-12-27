@@ -5,15 +5,12 @@ import com.mongodb.Mongo;
 import com.mongodb.MongoClient;
 import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.Morphia;
-import play.Configuration;
-import play.Logger;
-import play.Play;
+import play.*;
 import play.inject.ApplicationLifecycle;
-import play.libs.F;
-
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.lang.reflect.Constructor;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Created by morelli on 12/20/16.
@@ -21,24 +18,32 @@ import java.lang.reflect.Constructor;
 @Singleton
 public class PlayMorphia {
 
-    private static volatile PlayMorphia INSTANCE = null;
-
     MongoClient mongo = null;
     Datastore datastore = null;
     Morphia morphia = null;
 
     @Inject
-    public PlayMorphia(ApplicationLifecycle lifecycle) {
-        PlayMorphia.forceNewInstance();
+    public PlayMorphia(ApplicationLifecycle lifecycle, Environment env, Configuration config) {
+        try {
+            configure(config, env.classLoader(), env.isTest());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         lifecycle.addStopHook(()->{
-            if (!Play.isTest()) {
-                PlayMorphia.mongo().close();
+            if (env.isTest()) {
+                mongo().close();
             }
-            return F.Promise.pure(null);
+            return CompletableFuture.completedFuture(null);
         });
     }
 
+
     PlayMorphia(Configuration config, ClassLoader classLoader, boolean isTestMode) throws Exception {
+        configure(config,classLoader,isTestMode);
+    }
+
+
+    private void configure(Configuration config, ClassLoader classLoader, boolean isTestMode) throws Exception {
 
         String clientFactoryName = config.getString("playmorphia.mongoClientFactory");
         MongoClientFactory factory = getMongoClientFactory(clientFactoryName, config, isTestMode);
@@ -52,15 +57,6 @@ public class PlayMorphia {
 
         // Tell Morphia where to find our models
         morphia.mapPackage(factory.getModels());
-
-        /*
-        MongoClient mongoClient = new MongoClient(
-                ConfigFactory.load().getString("mongodb.host"),
-                ConfigFactory.load().getInt("mongodb.port"));
-
-        datastore = morphia.createDatastore(
-                mongoClient, ConfigFactory.load().getString("mongodb.database"));
-        */
 
         datastore = morphia.createDatastore(
                 mongo, factory.getDBName());
@@ -95,29 +91,10 @@ public class PlayMorphia {
         return new MongoClientFactory(config, isTestMode);
     }
 
-    public static PlayMorphia getInstance() {
-        if (INSTANCE == null) {
-            synchronized (PlayMorphia.class) {
-                if (INSTANCE == null) {
-                    try {
-                        INSTANCE = new PlayMorphia(Play.application().configuration(), Play.application().classloader(), Play.isTest());
-                    } catch (Exception e) {
-                        Logger.error(e.getClass().getSimpleName(), e);
-                    }
-                }
-            }
-        }
-        return INSTANCE;
-    }
 
-    public static void forceNewInstance() {
-        INSTANCE = null;
-        getInstance();
+    public Mongo mongo() {
+        return mongo;
     }
-
-    public static Mongo mongo() {
-        return getInstance().mongo;
-    }
-    public static Datastore datastore() { return getInstance().datastore; }
-    public static Morphia morphia() { return getInstance().morphia; }
+    public Datastore datastore() { return datastore; }
+    public Morphia morphia() { return morphia; }
 }
