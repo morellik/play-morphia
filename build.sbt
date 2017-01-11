@@ -12,6 +12,6 @@ scalaVersion := "2.11.7"
 
 libraryDependencies ++= Seq(
   "org.mongodb" % "mongo-java-driver" % "3.2.2",
-  "org.mongodb.morphia" % "morphia" % "1.3.0",
+  "org.mongodb.morphia" % "morphia" % "1.3.1",
   "org.easytesting" % "fest-assert" % "1.4" % "test"
 )
