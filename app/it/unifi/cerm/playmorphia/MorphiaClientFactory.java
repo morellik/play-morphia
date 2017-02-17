@@ -9,16 +9,16 @@ import com.mongodb.MongoClientURI;
 /**
  * Created by morelli on 12/21/16.
  */
-public class MongoClientFactory {
+public class MorphiaClientFactory {
 
     protected Configuration config;
     protected boolean isTest;
 
-    public MongoClientFactory(Configuration config) {
+    public MorphiaClientFactory(Configuration config) {
         this.config = config;
     }
 
-    protected MongoClientFactory(Configuration config, boolean isTest) {
+    protected MorphiaClientFactory(Configuration config, boolean isTest) {
         this.config = config;
         this.isTest = isTest;
     }
@@ -56,6 +56,11 @@ public class MongoClientFactory {
         return uri;
     }
 
+    /**
+     * Returns the models folder name associated with the current configuration.
+     *
+     * @return The models folder name
+     */
     public String getModels() {
         return config.getString("playmorphia.models", "models");
     }

@@ -46,7 +46,7 @@ public class PlayMorphia {
     private void configure(Configuration config, ClassLoader classLoader, boolean isTestMode) throws Exception {
 
         String clientFactoryName = config.getString("playmorphia.mongoClientFactory");
-        MongoClientFactory factory = getMongoClientFactory(clientFactoryName, config, isTestMode);
+        MorphiaClientFactory factory = getMongoClientFactory(clientFactoryName, config, isTestMode);
         mongo = factory.createClient();
 
         if (mongo == null) {
@@ -64,14 +64,14 @@ public class PlayMorphia {
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    protected MongoClientFactory getMongoClientFactory(String className, Configuration config, boolean isTestMode) throws Exception {
+    protected MorphiaClientFactory getMongoClientFactory(String className, Configuration config, boolean isTestMode) throws Exception {
 
         if (className != null) {
             try {
                 Class factoryClass = Class.forName(className, true, Thread.currentThread().getContextClassLoader());
-                if (!MongoClientFactory.class.isAssignableFrom(factoryClass)) {
+                if (!MorphiaClientFactory.class.isAssignableFrom(factoryClass)) {
                     throw new IllegalStateException("mongoClientFactory '" + className +
-                            "' is not of type " + MongoClientFactory.class.getName());
+                            "' is not of type " + MorphiaClientFactory.class.getName());
                 }
 
                 Constructor constructor = null;
@@ -81,14 +81,14 @@ public class PlayMorphia {
                     // can't use that one
                 }
                 if (constructor == null) {
-                    return (MongoClientFactory) factoryClass.newInstance();
+                    return (MorphiaClientFactory) factoryClass.newInstance();
                 }
-                return (MongoClientFactory) constructor.newInstance(config);
+                return (MorphiaClientFactory) constructor.newInstance(config);
             } catch (ClassNotFoundException e) {
                 throw e;
             }
         }
-        return new MongoClientFactory(config, isTestMode);
+        return new MorphiaClientFactory(config, isTestMode);
     }
 
 

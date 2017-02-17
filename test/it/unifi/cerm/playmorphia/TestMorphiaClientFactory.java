@@ -2,13 +2,13 @@ package it.unifi.cerm.playmorphia;
 
 import play.Configuration;
 
-public class TestMongoClientFactory extends MongoClientFactory {
+public class TestMorphiaClientFactory extends MorphiaClientFactory {
 
-    public TestMongoClientFactory(Configuration config) {
+    public TestMorphiaClientFactory(Configuration config) {
         super(config);
     }
 
-    public TestMongoClientFactory(Configuration config, boolean isTest) {
+    public TestMorphiaClientFactory(Configuration config, boolean isTest) {
         super(config, isTest);
     }
 

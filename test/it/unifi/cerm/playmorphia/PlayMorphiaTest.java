@@ -11,7 +11,6 @@ import org.junit.Test;
 import play.Configuration;
 
 import com.mongodb.ServerAddress;
-import com.mongodb.WriteConcern;
 import com.typesafe.config.ConfigFactory;
 /**
  * Created by morelli on 12/21/16.
@@ -37,9 +36,9 @@ public class PlayMorphiaTest {
     @Test
     public void testMongoClientFactory() throws Exception {
         Map<String, String> config = mapBuilder("playmorphia.test-uri", "mongodb://example.com:27018/bar")
-                .with("playmorphia.mongoClientFactory", TestMongoClientFactory.class.getName()).get();
+                .with("playmorphia.mongoClientFactory", TestMorphiaClientFactory.class.getName()).get();
         final PlayMorphia cut = playJongo(config, false);
-        // TestMongoClientFactory overrides getDBName, so using this to test we constructed with our
+        // TestMorphiaClientFactory overrides getDBName, so using this to test we constructed with our
         // specified factory class
         assertThat(cut.datastore.getDB().getName()).isEqualTo("testMongoClientFactory");
     }
