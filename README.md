@@ -22,11 +22,52 @@ You will need to specify your MongoDB configuration in the `conf/application.con
     playmorphia {
         uri="mongodb://127.0.0.1:27017/YourDB"
         database="YourDB"
-        host="127.0.0.1"
-        port=27017
         models="models"
     }
 
+
+#### MongoClient Factory
+
+Not all MongoClient options are supported by the MongoClientURI.  For full customization of the generated MongoClient, you can specify your own MongoClientFactory class in the `playmorphia` section of the `conf/application.conf`, like this:
+
+    mongoClientFactory="controllers.mongoConfiguration.MyMongoClientFactory"
+
+(I created a package inside `controllers` named `mongoConfiguration`)
+
+The value should be the name of a class that extends from `it.unifi.cerm.playmorphia.MongoClientFactory` and provide at least an empty constructor or a constructor that takes a play Configuration.  For example:
+
+```java
+package controllers.mongoConfiguration;
+
+import com.mongodb.MongoClient;
+import com.mongodb.ServerAddress;
+import it.unifi.cerm.playmorphia.MongoClientFactory;
+import play.Configuration;
+
+import java.util.Arrays;
+
+
+public class MyMongoClientFactory  extends MongoClientFactory {
+    private Configuration config;
+    public MyMongoClientFactory(Configuration config) {
+        super(config);
+        this.config = config;
+    }
+     public MongoClient createClient() throws Exception {
+         return new MongoClient(Arrays.asList(
+                 new ServerAddress("locahost", 27017),
+                 new ServerAddress("locahost", 27018),
+                 new ServerAddress("locahost", 27019)
+                 )
+         );
+     }
+
+    public String getDBName() {
+        return config.getString("playmorphia.database");
+    }
+
+}
+```
 
 Usage
 -----
