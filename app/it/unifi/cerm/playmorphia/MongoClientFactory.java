@@ -9,16 +9,16 @@ import com.mongodb.MongoClientURI;
 /**
  * Created by morelli on 12/21/16.
  */
-public class MorphiaClientFactory {
+public class MongoClientFactory {
 
     protected Configuration config;
     protected boolean isTest;
 
-    public MorphiaClientFactory(Configuration config) {
+    public MongoClientFactory(Configuration config) {
         this.config = config;
     }
 
-    protected MorphiaClientFactory(Configuration config, boolean isTest) {
+    protected MongoClientFactory(Configuration config, boolean isTest) {
         this.config = config;
         this.isTest = isTest;
     }
