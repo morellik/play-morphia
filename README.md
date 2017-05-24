@@ -1,7 +1,7 @@
-PlayMorphia Play 2.5.x Module
+PlayMorphia Play 2.5.x/2.6.x Module
 =====================================
 
-This is a Play 2.5.x Module for [Morphia](http://mongodb.github.io/morphia/)
+This is a Play 2.5.x/2.6.x Module for [Morphia](http://mongodb.github.io/morphia/)
 (a MongoDB Java driver wrapper).
 
 Installation
@@ -72,7 +72,7 @@ public class MyMongoClientFactory  extends MongoClientFactory {
 Usage
 -----
 
-**Play Framework 2.5.x**
+**Play Framework 2.5.x/2.6.x**
 
 A way to use PlayMorphia is to create a repositories package containing repository classes, one for each model. A repository class contains all methods to access to the collection members.
 The package structure should be similar to the following:
