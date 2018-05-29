@@ -3,13 +3,17 @@ package it.unifi.cerm.playmorphia;
 
 import com.mongodb.Mongo;
 import com.mongodb.MongoClient;
+import com.typesafe.config.Config;
 import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.Morphia;
-import play.*;
+import play.Environment;
 import play.inject.ApplicationLifecycle;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -18,83 +22,89 @@ import java.util.concurrent.CompletableFuture;
 @Singleton
 public class PlayMorphia {
 
-    MongoClient mongo = null;
-    Datastore datastore = null;
-    Morphia morphia = null;
+    private MongoClient mongo;
+    private Datastore datastore;
+    private Morphia morphia;
 
     @Inject
-    public PlayMorphia(ApplicationLifecycle lifecycle, Environment env, Configuration config) {
+    public PlayMorphia(ApplicationLifecycle lifecycle, Environment env, Config config) {
         try {
-            configure(config, env.classLoader(), env.isTest());
-        } catch (Exception e) {
+            configure(config, env.isTest());
+        } catch (ClassNotFoundException |
+                NoSuchMethodException |
+                InvocationTargetException |
+                IllegalAccessException |
+                InstantiationException e) {
             e.printStackTrace();
         }
-        lifecycle.addStopHook(()->{
+
+        lifecycle.addStopHook(() -> {
             if (env.isTest()) {
-                mongo().close();
+                Optional.ofNullable(mongo()).ifPresent(Mongo::close);
             }
             return CompletableFuture.completedFuture(null);
         });
     }
 
-
-    PlayMorphia(Configuration config, ClassLoader classLoader, boolean isTestMode) throws Exception {
-        configure(config,classLoader,isTestMode);
-    }
-
-
-    private void configure(Configuration config, ClassLoader classLoader, boolean isTestMode) throws Exception {
+    private void configure(Config config, boolean isTestMode)
+            throws
+            IllegalStateException,
+            ClassNotFoundException,
+            NoSuchMethodException,
+            InvocationTargetException,
+            InstantiationException,
+            IllegalAccessException {
 
         String clientFactoryName = config.getString("playmorphia.mongoClientFactory");
         MongoClientFactory factory = getMongoClientFactory(clientFactoryName, config, isTestMode);
         mongo = factory.createClient();
 
         if (mongo == null) {
-            throw new IllegalStateException("No MongoClient was created by instance of "+ factory.getClass().getName());
+            throw new IllegalStateException("No MongoClient was created by instance of " + factory.getClass().getName());
         }
 
-        morphia = new Morphia();
+        morphia = new Morphia().mapPackage(factory.getModels()); // Tell Morphia where to find our models
 
-        // Tell Morphia where to find our models
-        morphia.mapPackage(factory.getModels());
-
-        datastore = morphia.createDatastore(
-                mongo, factory.getDBName());
-
+        datastore = morphia.createDatastore(mongo, factory.getDBName());
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    protected MongoClientFactory getMongoClientFactory(String className, Configuration config, boolean isTestMode) throws Exception {
+    private MongoClientFactory getMongoClientFactory(String className, Config config, boolean isTestMode)
+            throws
+            ClassNotFoundException,
+            NoSuchMethodException,
+            IllegalAccessException,
+            InstantiationException,
+            InvocationTargetException {
 
         if (className != null) {
-            try {
-                Class factoryClass = Class.forName(className, true, Thread.currentThread().getContextClassLoader());
-                if (!MongoClientFactory.class.isAssignableFrom(factoryClass)) {
-                    throw new IllegalStateException("mongoClientFactory '" + className +
-                            "' is not of type " + MongoClientFactory.class.getName());
-                }
+            Class<?> factoryClass = Class.forName(className, true, Thread.currentThread().getContextClassLoader());
 
-                Constructor constructor = null;
-                try {
-                    constructor = factoryClass.getConstructor(Configuration.class);
-                } catch (Exception e) {
-                    // can't use that one
-                }
-                if (constructor == null) {
-                    return (MongoClientFactory) factoryClass.newInstance();
-                }
-                return (MongoClientFactory) constructor.newInstance(config);
-            } catch (ClassNotFoundException e) {
-                throw e;
+            if (!MongoClientFactory.class.isAssignableFrom(factoryClass)) {
+                throw new IllegalStateException("mongoClientFactory '" + className +
+                        "' is not of type " + MongoClientFactory.class.getName());
             }
+
+            Constructor constructor = factoryClass.getConstructor(Config.class);
+
+            if (constructor == null) {
+                return (MongoClientFactory) factoryClass.newInstance();
+            }
+
+            return (MongoClientFactory) constructor.newInstance(config);
         }
+
         return new MongoClientFactory(config, isTestMode);
     }
-
 
     public Mongo mongo() {
         return mongo;
     }
-    public Datastore datastore() { return datastore; }
-    public Morphia morphia() { return morphia; }
+
+    public Datastore datastore() {
+        return datastore;
+    }
+
+    public Morphia morphia() {
+        return morphia;
+    }
 }
