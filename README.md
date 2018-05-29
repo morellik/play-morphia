@@ -1,7 +1,7 @@
-PlayMorphia Play 2.6.x Module
+PlayMorphia Play 2.5.x/2.6.x Module
 =====================================
 
-This is a Play 2.6.x Module for [Morphia](http://mongodb.github.io/morphia/)
+This is a Play 2.5.x/2.6.x Module for [Morphia](http://mongodb.github.io/morphia/)
 (a MongoDB Java driver wrapper).
 
 Installation
@@ -11,7 +11,7 @@ Add the following to your build.sbt:
 
     libraryDependencies ++= Seq(
         "org.mongodb.morphia" % "morphia" % "1.3.2",
-        "org.mongodb" % "mongo-java-driver" % "3.7.0"
+        "org.mongodb" % "mongo-java-driver" % "3.2.2"
         )
 
 
@@ -41,25 +41,19 @@ package controllers.mongoConfiguration;
 
 import com.mongodb.MongoClient;
 import com.mongodb.ServerAddress;
-import com.typesafe.config.Config;
 import it.unifi.cerm.playmorphia.MongoClientFactory;
+import play.Configuration;
 
-import javax.inject.Inject;
 import java.util.Arrays;
 
 
-public class MyMongoClientFactory extends MongoClientFactory {
-
-    private Config config;
-
-    @Inject
-    public MyMongoClientFactory(Config config) {
+public class MyMongoClientFactory  extends MongoClientFactory {
+    private Configuration config;
+    public MyMongoClientFactory(Configuration config) {
         super(config);
         this.config = config;
     }
-
-    @Override
-     public MongoClient createClient() {
+     public MongoClient createClient() throws Exception {
          return new MongoClient(Arrays.asList(
                  new ServerAddress("locahost", 27017),
                  new ServerAddress("locahost", 27018),
@@ -68,7 +62,6 @@ public class MyMongoClientFactory extends MongoClientFactory {
          );
      }
 
-    @Override
     public String getDBName() {
         return config.getString("playmorphia.database");
     }
@@ -79,7 +72,7 @@ public class MyMongoClientFactory extends MongoClientFactory {
 Usage
 -----
 
-**Play Framework 2.6.x**
+**Play Framework 2.5.x/2.6.x**
 
 A way to use PlayMorphia is to create a repositories package containing repository classes, one for each model. A repository class contains all methods to access to the collection members.
 The package structure should be similar to the following:
@@ -138,20 +131,10 @@ public class User  {
 Repository example:
 
 ```java
-import it.unifi.cerm.playmorphia.PlayMorphia;
-import models.dtos.User;
-import org.bson.types.ObjectId;
-
-import javax.inject.Inject;
-
 public class UserRepository {
 
-    private final PlayMorphia morphia;
-
     @Inject
-    public UserRepository(PlayMorphia morphia) {
-        this.morphia = morphia;
-    }
+    private PlayMorphia morphia;
 
     public User findById(String id) {
         User user = morphia.
@@ -165,7 +148,6 @@ public class UserRepository {
 
     public void save(User u) {
         morphia.datastore().save(u);
-    }
 }
 ```
 
