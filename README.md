@@ -196,3 +196,8 @@ License
 -------
 
 The license is Apache 2.0, see LICENSE.txt.
+
+Acknowledgment
+--------------
+
+Thanks to for his contribution to Play 2.6 migration.
