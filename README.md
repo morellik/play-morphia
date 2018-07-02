@@ -10,6 +10,7 @@ Installation
 Add the following to your build.sbt:
 
     libraryDependencies ++= Seq(
+    guice,
         "org.mongodb.morphia" % "morphia" % "1.3.2",
         "org.mongodb" % "mongo-java-driver" % "3.7.0"
         )
