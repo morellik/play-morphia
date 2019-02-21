@@ -1,7 +1,7 @@
 PlayMorphia Play 2.7.x Module
 =====================================
 
-This is a Play 2.7.x Module for [Morphia](http://mongodb.github.io/morphia/)
+This is a Play 2.7.x Module for [Morphia](https://github.com/MorphiaOrg/morphia)
 (a MongoDB Java driver wrapper).
 
 Installation
