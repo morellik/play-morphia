@@ -1,24 +1,25 @@
 package it.unifi.cerm.playmorphia;
 
-import play.Configuration;
-
-import com.mongodb.DB;
+import com.typesafe.config.Config;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
 
+import javax.inject.Inject;
+
 /**
- * Created by morelli on 12/21/16.
+ * Created by morelli on 21/02/19.
  */
 public class MongoClientFactory {
 
-    protected Configuration config;
+    protected Config config;
     protected boolean isTest;
 
-    public MongoClientFactory(Configuration config) {
+    public MongoClientFactory(Config config) {
         this.config = config;
     }
 
-    protected MongoClientFactory(Configuration config, boolean isTest) {
+    @Inject
+    protected MongoClientFactory(Config config, boolean isTest) {
         this.config = config;
         this.isTest = isTest;
     }
@@ -31,9 +32,7 @@ public class MongoClientFactory {
      */
     public MongoClient createClient() throws Exception {
         MongoClientURI uri = getClientURI();
-
-        MongoClient mongo = new MongoClient(uri);
-        DB db = new DB(mongo, uri.getDatabase());
+        MongoClient mongo = new MongoClient(uri.getDatabase());
 
         return mongo;
     }
@@ -51,8 +50,8 @@ public class MongoClientFactory {
     protected MongoClientURI getClientURI() {
         MongoClientURI uri = new MongoClientURI(
                 isTest
-                    ? config.getString("playmorphia.test-uri", "mongodb://127.0.0.1:27017/test")
-                    : config.getString("playmorphia.uri", "mongodb://127.0.0.1:27017/play"));
+                    ? config.getString("playmorphia.test-uri")
+                    : config.getString("playmorphia.uri"));
         return uri;
     }
 
@@ -62,7 +61,8 @@ public class MongoClientFactory {
      * @return The models folder name
      */
     public String getModels() {
-        return config.getString("playmorphia.models", "models");
+        return config.getString("playmorphia.models");
     }
+
 
 }

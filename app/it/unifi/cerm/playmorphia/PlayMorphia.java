@@ -1,19 +1,20 @@
 package it.unifi.cerm.playmorphia;
 
 
-import com.mongodb.Mongo;
 import com.mongodb.MongoClient;
-import org.mongodb.morphia.Datastore;
-import org.mongodb.morphia.Morphia;
-import play.*;
+import com.typesafe.config.Config;
+import play.Environment;
 import play.inject.ApplicationLifecycle;
+import xyz.morphia.Datastore;
+import xyz.morphia.Morphia;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.lang.reflect.Constructor;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * Created by morelli on 12/20/16.
+ * Created by morelli on 21/02/19.
  */
 @Singleton
 public class PlayMorphia {
@@ -23,7 +24,7 @@ public class PlayMorphia {
     Morphia morphia = null;
 
     @Inject
-    public PlayMorphia(ApplicationLifecycle lifecycle, Environment env, Configuration config) {
+    public PlayMorphia(ApplicationLifecycle lifecycle, Environment env, Config config) {
         try {
             configure(config, env.classLoader(), env.isTest());
         } catch (Exception e) {
@@ -38,12 +39,12 @@ public class PlayMorphia {
     }
 
 
-    PlayMorphia(Configuration config, ClassLoader classLoader, boolean isTestMode) throws Exception {
+    PlayMorphia(Config config, ClassLoader classLoader, boolean isTestMode) throws Exception {
         configure(config,classLoader,isTestMode);
     }
 
 
-    private void configure(Configuration config, ClassLoader classLoader, boolean isTestMode) throws Exception {
+    private void configure(Config config, ClassLoader classLoader, boolean isTestMode) throws Exception {
 
         String clientFactoryName = config.getString("playmorphia.mongoClientFactory");
         MongoClientFactory factory = getMongoClientFactory(clientFactoryName, config, isTestMode);
@@ -64,7 +65,7 @@ public class PlayMorphia {
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    protected MongoClientFactory getMongoClientFactory(String className, Configuration config, boolean isTestMode) throws Exception {
+    protected MongoClientFactory getMongoClientFactory(String className, Config config, boolean isTestMode) throws Exception {
 
         if (className != null) {
             try {
@@ -76,7 +77,7 @@ public class PlayMorphia {
 
                 Constructor constructor = null;
                 try {
-                    constructor = factoryClass.getConstructor(Configuration.class);
+                    constructor = factoryClass.getConstructor(Config.class);
                 } catch (Exception e) {
                     // can't use that one
                 }
@@ -92,7 +93,7 @@ public class PlayMorphia {
     }
 
 
-    public Mongo mongo() {
+    public MongoClient mongo() {
         return mongo;
     }
     public Datastore datastore() { return datastore; }
