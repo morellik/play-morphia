@@ -1,7 +1,7 @@
-PlayMorphia Play 2.5.x/2.6.x Module
+PlayMorphia Play 2.7.x Module
 =====================================
 
-This is a Play 2.5.x/2.6.x Module for [Morphia](http://mongodb.github.io/morphia/)
+This is a Play 2.7.x Module for [Morphia](http://mongodb.github.io/morphia/)
 (a MongoDB Java driver wrapper).
 
 Installation
@@ -10,8 +10,9 @@ Installation
 Add the following to your build.sbt:
 
     libraryDependencies ++= Seq(
-        "org.mongodb.morphia" % "morphia" % "1.3.2",
-        "org.mongodb" % "mongo-java-driver" % "3.2.2"
+    guice,
+    "org.mongodb" % "mongo-java-driver" % "3.9.1",
+    "xyz.morphia.morphia" % "core" % "1.4.0",
         )
 
 
@@ -20,9 +21,10 @@ Create a `lib` folder in your project directory and copy play-morphia.jar inside
 You will need to specify your MongoDB configuration in the `conf/application.conf`file:
 
     playmorphia {
-        uri="mongodb://127.0.0.1:27017/YourDB"
+        uri="mongodb://127.0.0.1:27017/"
         database="YourDB"
         models="models"
+        mongoClientFactory="controllers.mongoConfiguration.MyMongoClientFactory"
     }
 
 
@@ -41,23 +43,23 @@ package controllers.mongoConfiguration;
 
 import com.mongodb.MongoClient;
 import com.mongodb.ServerAddress;
+import com.typesafe.config.Config;
 import it.unifi.cerm.playmorphia.MongoClientFactory;
-import play.Configuration;
 
 import java.util.Arrays;
 
-
 public class MyMongoClientFactory  extends MongoClientFactory {
-    private Configuration config;
-    public MyMongoClientFactory(Configuration config) {
+
+    private Config config;
+
+    public MyMongoClientFactory(Config config) {
         super(config);
         this.config = config;
     }
-     public MongoClient createClient() throws Exception {
+
+    public MongoClient createClient() throws Exception {
          return new MongoClient(Arrays.asList(
-                 new ServerAddress("locahost", 27017),
-                 new ServerAddress("locahost", 27018),
-                 new ServerAddress("locahost", 27019)
+                 new ServerAddress("localhost", 27017)
                  )
          );
      }
@@ -72,7 +74,7 @@ public class MyMongoClientFactory  extends MongoClientFactory {
 Usage
 -----
 
-**Play Framework 2.5.x/2.6.x**
+**Play Framework 2.7.x**
 
 A way to use PlayMorphia is to create a repositories package containing repository classes, one for each model. A repository class contains all methods to access to the collection members.
 The package structure should be similar to the following:
@@ -85,6 +87,11 @@ The package structure should be similar to the following:
 Model example:
 
 ```java
+
+import org.bson.types.ObjectId;
+import xyz.morphia.annotations.Entity;
+import xyz.morphia.annotations.Id;
+
 @Entity(value = "DB.users")
 public class User  {
 
@@ -131,10 +138,23 @@ public class User  {
 Repository example:
 
 ```java
+package repositories;
+       
+
+import it.unifi.cerm.playmorphia.PlayMorphia;
+import models.User;
+import org.bson.types.ObjectId;
+
+import javax.inject.Inject;
+
 public class UserRepository {
 
+    private final PlayMorphia morphia;
+
     @Inject
-    private PlayMorphia morphia;
+    public UserRepository(PlayMorphia morphia) {
+        this.morphia = morphia;
+    }
 
     public User findById(String id) {
         User user = morphia.
@@ -148,6 +168,7 @@ public class UserRepository {
 
     public void save(User u) {
         morphia.datastore().save(u);
+    }
 }
 ```
 
