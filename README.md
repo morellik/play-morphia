@@ -140,7 +140,7 @@ Repository example:
 
 ```java
 import it.unifi.cerm.playmorphia.PlayMorphia;
-import models.dtos.User;
+import models.User;
 import org.bson.types.ObjectId;
 
 import javax.inject.Inject;
