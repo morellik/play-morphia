@@ -89,8 +89,8 @@ Model example:
 ```java
 
 import org.bson.types.ObjectId;
-import xyz.morphia.annotations.Entity;
-import xyz.morphia.annotations.Id;
+import dev.morphia.annotations.Entity;
+import dev.morphia.annotations.Id;
 
 @Entity(value = "DB.users")
 public class User  {
