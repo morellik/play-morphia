@@ -1,7 +1,7 @@
-PlayMorphia Play 2.7.x Module
+PlayMorphia Play 2.8.x Module
 =====================================
 
-This is a Play 2.7.x Module for [Morphia](https://github.com/MorphiaOrg/morphia)
+This is a Play 2.8.x Module for [Morphia](https://github.com/MorphiaOrg/morphia)
 (a MongoDB Java driver wrapper).
 
 Installation
@@ -10,9 +10,9 @@ Installation
 Add the following to your build.sbt:
 
     libraryDependencies ++= Seq(
-    guice,
-    "org.mongodb" % "mongo-java-driver" % "3.9.1",
-    "xyz.morphia.morphia" % "core" % "1.4.0",
+        guice,
+        "org.mongodb" % "mongo-java-driver" % "3.12.0",
+        "dev.morphia.morphia" % "core" % "1.5.8",
         )
 
 
@@ -74,7 +74,7 @@ public class MyMongoClientFactory  extends MongoClientFactory {
 Usage
 -----
 
-**Play Framework 2.7.x**
+**Play Framework 2.8.x**
 
 A way to use PlayMorphia is to create a repositories package containing repository classes, one for each model. A repository class contains all methods to access to the collection members.
 The package structure should be similar to the following:

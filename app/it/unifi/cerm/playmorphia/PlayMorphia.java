@@ -5,8 +5,8 @@ import com.mongodb.MongoClient;
 import com.typesafe.config.Config;
 import play.Environment;
 import play.inject.ApplicationLifecycle;
-import xyz.morphia.Datastore;
-import xyz.morphia.Morphia;
+import dev.morphia.Datastore;
+import dev.morphia.Morphia;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -40,7 +40,7 @@ public class PlayMorphia {
 
 
     PlayMorphia(Config config, ClassLoader classLoader, boolean isTestMode) throws Exception {
-        configure(config,classLoader,isTestMode);
+        configure(config, classLoader, isTestMode);
     }
 
 
