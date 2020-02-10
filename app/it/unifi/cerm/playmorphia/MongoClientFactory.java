@@ -32,7 +32,7 @@ public class MongoClientFactory {
      */
     public MongoClient createClient() throws Exception {
         MongoClientURI uri = getClientURI();
-        MongoClient mongo = new MongoClient(uri.getDatabase());
+        MongoClient mongo = new MongoClient(uri);
 
         return mongo;
     }
