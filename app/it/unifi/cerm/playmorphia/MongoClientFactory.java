@@ -24,7 +24,7 @@ public class MongoClientFactory {
         this.isTest = isTest;
     }
 
-/**
+    /**
      * Creates and returns a new instance of a MongoClient.
      *
      * @return a new MongoClient
@@ -38,7 +38,7 @@ public class MongoClientFactory {
     }
 
 
-/**
+    /**
      * Returns the database name associated with the current configuration.
      *
      * @return The database name
@@ -50,8 +50,8 @@ public class MongoClientFactory {
     protected MongoClientURI getClientURI() {
         MongoClientURI uri = new MongoClientURI(
                 isTest
-                    ? config.getString("playmorphia.test-uri")
-                    : config.getString("playmorphia.uri"));
+                        ? config.getString("playmorphia.test-uri")
+                        : config.getString("playmorphia.uri"));
         return uri;
     }
 
@@ -63,6 +63,5 @@ public class MongoClientFactory {
     public String getModels() {
         return config.getString("playmorphia.models");
     }
-
 
 }
